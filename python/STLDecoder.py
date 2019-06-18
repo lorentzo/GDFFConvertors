@@ -82,10 +82,39 @@ def read_ascii(ascii_stl_file):
 
 	return triangles
 
-	
+def write_to_obj_file(triangles, out_file):
+
+	with open(out_file, "w") as out:
+
+		for tri in triangles:
+
+			# Basically some software uses the convention that the "Y" axis is UP 
+			# (Unity, Gravity Sketch etc) whereas other software use the "Z" axis 
+			# as UP (Blender etc). CAD tools tend to favour Z axis up (right handed) 
+			# but because we are heavily tied to unity, we use Y UP (Left Handed).
+			# https://steamcommunity.com/app/551370/discussions/0/2579854400753648953/
+			y_up = False
+			for idx in range(1,4):
+
+				if y_up:
+					out.write('v' + ' ' + str(tri[idx][0][0]) + ' ' + str(tri[idx][1][0]) + ' ' + str(tri[idx][2][0]) + '\n')
+
+				else:
+					out.write('v' + ' ' + str(triangle[vertex][0][0]) + ' ' + str(triangle[vertex][2][0]) + ' ' + str(triangle[vertex][1][0]) + '\n')
+
+		idx = 1
+		for triangle_idx in range(len(triangles)):
+			if y_up:
+				out.write('f' + ' ' + str(idx) + ' ' + str(idx+1) + ' ' + str(idx+2) + '\n')
+			else:
+				out.write('f' + ' ' + str(idx) + ' ' + str(idx+2) + ' ' + str(idx+1) + '\n')
+			idx += 3
+				
+		
 def main():
 
-	stl_file = "../../triangulation_springLow-ascii.stl"
+	stl_file = "../../triangulation_springLow.stl"
+	out_file = "out.obj"
 	triangles = []
 
 	if is_binary(stl_file):
@@ -95,6 +124,7 @@ def main():
 		triangles = read_ascii(stl_file)
 
 	# Print the data.
+	"""
 	for triangle in triangles:
 		print("Start Tri")
 		print("	N", triangle[0])
@@ -102,7 +132,9 @@ def main():
 		print("	V2", triangle[2])
 		print("	V3", triangle[3])
 		print("End Tri")
+	"""
 
+	write_to_obj_file(triangles, out_file)
 	print(len(triangles))
 
 
