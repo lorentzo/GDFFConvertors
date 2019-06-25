@@ -100,7 +100,7 @@ def write_to_obj_file(triangles, out_file):
 					out.write('v' + ' ' + str(tri[idx][0][0]) + ' ' + str(tri[idx][1][0]) + ' ' + str(tri[idx][2][0]) + '\n')
 
 				else:
-					out.write('v' + ' ' + str(triangle[vertex][0][0]) + ' ' + str(triangle[vertex][2][0]) + ' ' + str(triangle[vertex][1][0]) + '\n')
+					out.write('v' + ' ' + str(tri[idx][0][0]) + ' ' + str(tri[idx][2][0]) + ' ' + str(tri[idx][1][0]) + '\n')
 
 		idx = 1
 		for triangle_idx in range(len(triangles)):
@@ -110,11 +110,111 @@ def write_to_obj_file(triangles, out_file):
 				out.write('f' + ' ' + str(idx) + ' ' + str(idx+2) + ' ' + str(idx+1) + '\n')
 			idx += 3
 				
+def write_to_binarymesh_file(triangles, out_file):
+
+	with open(out_file, "wb") as out:
+
+		# File signature. 10B (string). Must be 'BINARYMESH'.
+		signature = "BINARYMESH".encode('ascii')
+		out.write(struct.pack('<s', signature))
+
+		# File format version. 2B (uint16).
+		version = 1
+		out.write(struct.pack('<H', version))
+
+		# Datablock 1. Composite: 
+
+		# Length of object name. 2B (uint16).
+		obj_name_len = 6
+		out.write(struct.pack('<H', obj_name_len))	
+
+		# Name of object. obj_name_len B (string).
+		obj_name = "opruga".encode('ascii')
+		out.write(struct.pack('<s', obj_name))
+
+		# Number of vertices. 4B (uint32).
+		n_vertices = len(triangles) * 3
+		out.write(struct.pack('<I', n_vertices))
+
+		# Vertices.
+		for tri in triangles:
+
+			for idx in range(1,4):
+
+				# X coordinate of i-th triangle. 8B (double)
+				x = tri[idx][0][0]
+				out.write(struct.pack('<d', x))
+
+				# Y coordinate of i-th triangle. 8B (double)
+				y = tri[idx][1][0]
+				out.write(struct.pack('<d', y))
+
+				# Z coordinate of i-th triangle. 8B (double)
+				z = tri[idx][2][0]
+				out.write(struct.pack('<d', z))
+
+		# Number of vertex normals. 4B (uint32).
+		n_vertex_normals = 0
+		out.write(struct.pack('<I', n_vertex_normals))		
+
+		# Number of texture coordinates. 4B (uint32).
+		n_tex_normals = 0
+		out.write(struct.pack('<I', n_tex_normals))
+
+		# Number of material slots. 2B (uint16).
+		n_materials = 0
+		out.write(struct.pack('<H', n_materials))
+
+		# Number of faces. 4B (uint32).
+		n_faces = len(triangles)
+		out.write(struct.pack('<I', n_faces))
+
+		idx = 1
+		for triangle_idx in range(len(triangles)):
+
+			# Number of vertices in i-th face. 2B (uint16).
+			n_vertices = 3
+			out.write(struct.pack('<H', n_vertices))
+
+			# Index of 1st vertex in the i-th face. 4B (uint32).
+			out.write(struct.pack('<I', idx))
+
+			# Index of 1st normal vertex on the i-th face. 4B (uint32).
+			out.write(struct.pack('<I', 0))
+
+			# Index of 1st tex coord on the i-th face. 4B (uint32).
+			out.write(struct.pack('<I', 0))
+
+			# Index of 2nd vertex in the i-th face. 4B (uint32).
+			out.write(struct.pack('<I', idx+1))
+
+			# Index of 2nd normal vertex on the i-th face. 4B (uint32).
+			out.write(struct.pack('<I', 0))
+
+			# Index of 2nd tex coord on the i-th face. 4B (uint32).
+			out.write(struct.pack('<I', 0))
+
+			# Index of 3rd vertex in the i-th face. 4B (uint32).
+			out.write(struct.pack('<I', idx+2))
+
+			# Index of 3rd normal vertex on the i-th face. 4B (uint32).
+			out.write(struct.pack('<I', 0))
+
+			# Index of 3rd tex coord on the i-th face. 4B (uint32).
+			out.write(struct.pack('<I', 0))
+
+			# Index of material of the i-th face. 2B (uint16).
+			out.write(struct.pack('<H', 0))
+
+			idx += 3
+				
+
+	
 		
 def main():
 
 	stl_file = "../../triangulation_springLow.stl"
-	out_file = "out.obj"
+	out_file = "out.binarymesh"
 	triangles = []
 
 	if is_binary(stl_file):
@@ -134,7 +234,8 @@ def main():
 		print("End Tri")
 	"""
 
-	write_to_obj_file(triangles, out_file)
+	#write_to_obj_file(triangles, out_file)
+	write_to_binarymesh_file(triangles, out_file)
 	print(len(triangles))
 
 
