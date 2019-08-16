@@ -17,7 +17,7 @@ float REAL32bin_to_float(ifstream& stl_file)
 
 int main(){
 
-	string stl_file_path = "../../triangulation_springLow.stl";
+	string stl_file_path = "Gear-170000_faces-robot-aligned.stl";
 	string obj_file_path = "out.obj";
 
 	// Open stl file as: input, binary.
@@ -33,7 +33,7 @@ int main(){
 	// https://steamcommunity.com/app/551370/discussions/0/2579854400753648953/
 
 	int number_of_triangles;
-	bool y_up = false;
+	bool y_up = true;
 	if (stl_file.is_open() and obj_file.is_open())
 	{
 
